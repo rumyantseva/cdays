@@ -20,6 +20,18 @@ func main() {
 		log.Fatal("The port wasn't set")
 	}
 
-	r := routing.NewBLRouter()
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	diagPort := os.Getenv("DIAG_PORT")
+	if diagPort == "" {
+		log.Fatal("The diagnostics port wasn't set")
+	}
+
+	go func() {
+		r := routing.NewBLRouter()
+		log.Fatal(http.ListenAndServe(":"+port, r))
+	}()
+
+	{
+		r := routing.NewDiagnosticsRouter()
+		log.Fatal(http.ListenAndServe(":"+diagPort, r))
+	}
 }
