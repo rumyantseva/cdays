@@ -1,10 +1,16 @@
 package main
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 func main() {
+	log.Print("The application is starting...")
+
 	http.HandleFunc("/", rootHandler())
-	http.ListenAndServe(":8000", nil)
+
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
 func rootHandler() func(http.ResponseWriter, *http.Request) {
