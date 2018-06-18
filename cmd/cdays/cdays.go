@@ -6,10 +6,14 @@ import (
 	"os"
 
 	"github.com/rumyantseva/cdays/internal/routing"
+	"github.com/rumyantseva/cdays/internal/version"
 )
 
 func main() {
-	log.Print("The application is starting...")
+	log.Printf(
+		"The application is starting, version is %s, build time is %s, commit is %v...",
+		version.Release, version.BuildTime, version.Commit,
+	)
 
 	port := os.Getenv("PORT")
 	if port == "" {
