@@ -2,6 +2,9 @@ PROJECT?=github.com/rumyantseva/cdays
 BUILD_PATH?=cmd/cdays
 APP?=cdays
 
+PORT?=8887
+INTERNAL_PORT?=8888
+
 GOOS?=linux
 GOARCH?=amd64
 
@@ -26,6 +29,11 @@ build: test clean
 
 image: build
 	docker build -t $(CONTAINER_IMAGE):$(RELEASE) .
+
+run: image
+	docker run --name ${APP} -p ${PORT}:${PORT} -p ${INTERNAL_PORT}:${INTERNAL_PORT} --rm \
+		-e "PORT=${PORT}" -e "INTERNAL_PORT=${INTERNAL_PORT}" \
+		$(CONTAINER_IMAGE):$(RELEASE)
 
 test: clean
 	go test -race ./...
