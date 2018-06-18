@@ -1,16 +1,31 @@
 PROJECT?=github.com/rumyantseva/cdays
 BUILD_PATH?=cmd/cdays
+APP?=cdays
+
+GOOS?=linux
+GOARCH?=amd64
+
+REGISTRY?=docker.io/webdeva
+NAMESPACE?=rumyantseva
+CONTAINER_NAME?=${NAMESPACE}-${APP}
+CONTAINER_IMAGE?=${REGISTRY}/${CONTAINER_NAME}
 
 RELEASE?=0.0.1
 COMMIT?=$(shell git rev-parse --short HEAD)
 BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
 
-build: test
-	go build \
+clean:
+	rm -f ./bin/${GOOS}-${GOARCH}/${APP}
+
+build: test clean
+	CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build \
 		-ldflags "-s -w -X ${PROJECT}/internal/version.Release=${RELEASE} \
 		-X ${PROJECT}/internal/version.Commit=${COMMIT} \
 		-X ${PROJECT}/internal/version.BuildTime=${BUILD_TIME}" \
-	-o ./bin/cdays ${PROJECT}/${BUILD_PATH}
+	-o ./bin/${GOOS}-${GOARCH}/${APP} ${PROJECT}/${BUILD_PATH}
 
-test:
+image: build
+	docker build -t $(CONTAINER_IMAGE):$(RELEASE) .
+
+test: clean
 	go test -race ./...
