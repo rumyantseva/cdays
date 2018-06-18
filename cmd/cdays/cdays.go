@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/rumyantseva/cdays/internal/routing"
 	"github.com/rumyantseva/cdays/internal/version"
@@ -30,8 +32,16 @@ func main() {
 		log.Fatal(http.ListenAndServe(":"+port, r))
 	}()
 
-	{
+	go func() {
 		r := routing.NewDiagnosticsRouter()
 		log.Fatal(http.ListenAndServe(":"+diagPort, r))
+	}()
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	select {
+	case killSignal := <-interrupt:
+		log.Printf("Got %s. Stopping...", killSignal)
 	}
 }
