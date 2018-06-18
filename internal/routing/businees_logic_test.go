@@ -13,24 +13,23 @@ func TestNewBLRouter(t *testing.T) {
 	srv := httptest.NewServer(r)
 	defer srv.Close()
 
-	{
-		resp, err := http.Get(srv.URL + "/home")
+	testCases := []struct {
+		route              string
+		expectedStatusCode int
+	}{
+		{"/home", http.StatusOK},
+		{"/", http.StatusNotFound},
+		// ...
+		// ...
+	}
+
+	for _, c := range testCases {
+		resp, err := http.Get(srv.URL + c.route)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("Status code is %v, but %v expected", resp.StatusCode, http.StatusOK)
+		if resp.StatusCode != c.expectedStatusCode {
+			t.Errorf("Status code is %v, but %v expected", resp.StatusCode, c.expectedStatusCode)
 		}
 	}
-
-	{
-		resp, err := http.Get(srv.URL)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if resp.StatusCode != http.StatusNotFound {
-			t.Errorf("Status code is %v, but %v expected", resp.StatusCode, http.StatusNotFound)
-		}
-	}
-
 }
